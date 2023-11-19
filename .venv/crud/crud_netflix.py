@@ -206,6 +206,8 @@ def desconectar():
 # # FUNCIONES VARIAS
 # Chequear un campo
 def chequear_campo(campo_int, column_bbdd):
+    conn = sq3.connect('netflix_oscar.db')
+    cur = conn.cursor()
     query_buscar = f'SELECT type, title_content, director, country, release_year, rating, duration, listed_in FROM content WHERE {column_bbdd} = "{campo_int}" AND see_content LIKE TRUE'
     cur.execute(query_buscar)
     resultado = cur.fetchall()
@@ -254,7 +256,20 @@ def crear():
 
 # #   READ
 def leer_general():
-    pass
+    global is_check_conn
+  
+    if not(is_check_conn):
+        mensaje_noconectado()
+    else:
+        try:
+            miResultado = leer_campo(title_content_input.get(), 'Titulo', 'title_content')
+            if miResultado:
+                rellenar_campos(miResultado)
+            else:
+                mensaje_campo_existe_o_no(title_content_input.get(), 'Titulo', 'no')
+        except sq3.OperationalError:
+            messagebox.showwarning('ERROR', 'No se pudo buscar en la BBDD')
+  
 
 # #   UPDATE
 def actualizar():
