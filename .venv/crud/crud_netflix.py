@@ -261,6 +261,9 @@ def borrar_registro(id_content):
     query_borrar = f'delete FROM content WHERE id_content = {id_content}'
     cur.execute(query_borrar)
     conn.commit
+    cur.close()
+    conn.close()
+
     
 # # MENU CRUD ( Create - read - update - delete)
 # #   CREATE
@@ -305,8 +308,8 @@ def borrar():
             boton_actualizar["state"] = tk.DISABLED
             boton_borrar["state"] = tk.DISABLED
             limpiar()
-        except:
-            messagebox.showerror('Error', 'Se produjo un error borrando el registro')
+        except Exception as error:
+            messagebox.showerror('Error', error)
             
     limpiar()
 
