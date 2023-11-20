@@ -215,6 +215,7 @@ def chequear_campo(campo_int, column_bbdd):
     query_buscar = f'SELECT type, title_content, director, country, release_year, rating, duration, listed_in, id_content FROM content WHERE {column_bbdd} = "{campo_int}" AND see_content LIKE TRUE'
     cur.execute(query_buscar)
     resultado = cur.fetchall()
+    cur.close()
     return resultado
 
 # Leer un campo
@@ -258,17 +259,78 @@ def list_campo(campo):
 def borrar_registro(id_content):
     conn = sq3.connect('netflix_oscar.db')
     cur = conn.cursor()
-    query_borrar = f'delete FROM content WHERE id_content = {id_content}'
+    query_borrar = f'DELETE FROM content WHERE id_content = {id_content}'
     cur.execute(query_borrar)
     conn.commit
     cur.close()
-    conn.close()
 
+# Borrar el registro
+def actualizar_registro(id_content, misDatos):
+    conn = sq3.connect('netflix_oscar.db')
+    cur = conn.cursor()
+    query_actualizar = f'UPDATE content SET type = ?, title_content = ?, director = ?, country = ?, release_year = ?, rating = ?, duration = ?, listed_in = ? WHERE id_content = {id_content}'
+    cur.execute(query_actualizar, misDatos)
+    conn.commit
+    cur.close()
+
+def crear_registro(id_content, misDatos):
+    conn = sq3.connect('netflix_oscar.db')
+    cur = conn.cursor()
+    query_crear = f'INSERT INTO content (id_content, type, title_content, director, country, release_year, rating, duration, listed_in) VALUES ({id_content}, ?, ?, ?, ?, ?, ?, ?, ?)'
+    cur.execute(query_crear, misDatos)
+    conn.commit
+    cur.close()
+
+
+#Obtener el ultimo ID para cuando agrego
+def obtener_ID():
+    conn = sq3.connect('netflix_oscar.db')
+    cur_temporal = conn.cursor()
+    query = 'SELECT max(id_content) FROM content'
+    cur_temporal.execute(query)
+    resultado = cur_temporal.fetchall()
+    cur_temporal.close()
+    return resultado
+
+#Validar un campo
+def validar_campo(campo):
+    if campo == '' or campo == 'Seleccione...':
+        valido = False
+    else:
+        valido = True
+    
+    return valido
+
+
+#Funcion para validar que todos los campos esten completos
+def validar_campos():
+    if (validar_campo(type.get()) and validar_campo(title_content.get()) and validar_campo(director.get()) and validar_campo(title_content.get()) and validar_campo(country.get()) and validar_campo(release_year.get()) and validar_campo(rating.get()) and validar_campo(duration.get()) and validar_campo(listed_in.get())):
+        validado = True
+    else:
+        validado = False
+
+    return validado
+
+ 
     
 # # MENU CRUD ( Create - read - update - delete)
 # #   CREATE
 def crear():
-    pass
+    ultimoID = obtener_ID()
+    nuevoiD = (ultimoID[0][0])
+    nuevoiD += 1
+    
+    if validar_campos():
+        try:
+            misDatos = armarRegistro()
+            crear_registro(nuevoiD, misDatos)
+            messagebox.showinfo('Creado', 'Se creo correctamente el registro')
+            limpiar()
+        except Exception as error:
+            messagebox.showerror('Error', error)
+    
+    else:
+        messagebox.showerror('Error', 'Faltan completar campos')
 
 # #   READ
 def leer_general():
@@ -295,7 +357,21 @@ def leer_general():
 
 # #   UPDATE
 def actualizar():
-    pass
+    respuesta = messagebox.askquestion(
+        'IMPORTANTE', 'Confirma la actualizacion del registro?')
+    if respuesta == 'yes':
+        try:
+            misDatos = armarRegistro()
+            actualizar_registro(id_content_label.cget('text'), misDatos)
+            messagebox.showinfo('Actualizado', 'Se actualizo correctamente el registro')
+            boton_actualizar["state"] = tk.DISABLED
+            boton_borrar["state"] = tk.DISABLED
+            limpiar()
+        except Exception as error:
+            messagebox.showerror('Error', error)
+            
+        limpiar()
+
 
 # #   DELETE
 def borrar():
