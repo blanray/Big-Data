@@ -270,6 +270,9 @@ def leer_general():
             else:
                 if title_content_input.get() != '':
                     mensaje_campo_existe_o_no(title_content_input.get(), 'Titulo', 'no')
+                boton_actualizar["state"] = tk.DISABLED
+                boton_borrar["state"] = tk.DISABLED
+                limpiar()
         except sq3.OperationalError:
             messagebox.showwarning('ERROR', 'No se pudo buscar en la BBDD')
   
