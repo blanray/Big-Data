@@ -265,6 +265,8 @@ def leer_general():
             miResultado = leer_campo(title_content_input.get(), 'Titulo', 'title_content')
             if miResultado:
                 rellenar_campos(miResultado)
+                boton_actualizar["state"] = tk.NORMAL
+                boton_borrar["state"] = tk.NORMAL
             else:
                 mensaje_campo_existe_o_no(title_content_input.get(), 'Titulo', 'no')
         except sq3.OperationalError:
@@ -437,10 +439,10 @@ boton_buscar = tk.Button(framebotones, text='Buscar', command=leer_general)
 config_boton(boton_buscar, 1)
 
 boton_actualizar = tk.Button(
-    framebotones, text='Actualizar', command=actualizar)
+    framebotones, text='Actualizar', command=actualizar, state = tk.DISABLED)
 config_boton(boton_actualizar, 2)
 
-boton_borrar = tk.Button(framebotones, text='Eliminar', command=borrar)
+boton_borrar = tk.Button(framebotones, text='Eliminar', command=borrar, state = tk.DISABLED)
 config_boton(boton_borrar, 3)
 
 # FRAME DEL PIE
