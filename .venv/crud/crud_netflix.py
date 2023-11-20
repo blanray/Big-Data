@@ -157,6 +157,10 @@ def mensaje_registro(*campo):
             messagebox.showinfo(
                 f'REGISTRO {campo[-1].upper()}', f'Registro {campo[-1]} con el titulo  "{campo[0]}" en la base de datos')
 
+
+def armarRegistro():
+    return(type.get(), title_content.get(), director.get(), country.get(), release_year.get(), rating.get(), duration.get(), listed_in.get())
+    
 '''
 ************************************
    CONEXIÓN/DESCONEXIÓN A LA BBDD
@@ -208,7 +212,7 @@ def desconectar():
 def chequear_campo(campo_int, column_bbdd):
     conn = sq3.connect('netflix_oscar.db')
     cur = conn.cursor()
-    query_buscar = f'SELECT type, title_content, director, country, release_year, rating, duration, listed_in FROM content WHERE {column_bbdd} = "{campo_int}" AND see_content LIKE TRUE'
+    query_buscar = f'SELECT type, title_content, director, country, release_year, rating, duration, listed_in, id_content FROM content WHERE {column_bbdd} = "{campo_int}" AND see_content LIKE TRUE'
     cur.execute(query_buscar)
     resultado = cur.fetchall()
     return resultado
@@ -230,6 +234,7 @@ def rellenar_campos(resultado):
         rating.set(elemento[5])
         duration.set(elemento[6])
         listed_in.set(elemento[7])
+        id_content_label.config(text= elemento[8])
 
 # Listas ordenadas de director, type, country, listed_in, rating
 def list_campo(campo):
@@ -249,6 +254,14 @@ def list_campo(campo):
     conn_temporal.close()
     return campo_list
 
+# Borrar el registro
+def borrar_registro(id_content):
+    conn = sq3.connect('netflix_oscar.db')
+    cur = conn.cursor()
+    query_borrar = f'delete FROM content WHERE id_content = {id_content}'
+    cur.execute(query_borrar)
+    conn.commit
+    
 # # MENU CRUD ( Create - read - update - delete)
 # #   CREATE
 def crear():
@@ -283,7 +296,19 @@ def actualizar():
 
 # #   DELETE
 def borrar():
-    pass
+    respuesta = messagebox.askquestion(
+        'IMPORTANTE', 'Confirma eliminacion del registro?')
+    if respuesta == 'yes':
+        try:
+            borrar_registro(id_content_label.cget('text'))
+            messagebox.showinfo('Borrado', 'Se elimino correctamente el registro')
+            boton_actualizar["state"] = tk.DISABLED
+            boton_borrar["state"] = tk.DISABLED
+            limpiar()
+        except:
+            messagebox.showerror('Error', 'Se produjo un error borrando el registro')
+            
+    limpiar()
 
 '''
 *********************************
@@ -407,6 +432,9 @@ listed_in_option.grid(row=8, column=1, padx=10, pady=10)
 
 
 # LABEL
+id_content_label = tk.Label(framecampos)
+id_content_label.place_forget()
+
 type_label = tk.Label(framecampos, text='Tipo de...')
 config_label(type_label, 0)
 
